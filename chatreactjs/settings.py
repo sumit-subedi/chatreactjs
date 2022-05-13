@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'chat',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'channels',
 ]
 
 REST_FRAMEWORK = {
@@ -48,7 +49,8 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
-    
+     'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated', )
 }
 
 MIDDLEWARE = [
@@ -88,6 +90,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'chatreactjs.wsgi.application'
+ASGI_APPLICATION = 'chatreactjs.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('localhost', 6379)],
+        },
+    },
+}
+
 
 
 # Database

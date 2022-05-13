@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseNotFound, JsonResponse
+from django.http import JsonResponse
 from django.contrib.auth.models import User
 
 from chat.serializers import *
@@ -10,8 +10,16 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import *
 
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.shortcuts import render
 
+def index(request):
+    return render(request, 'chat/index.html')
+
+def room(request, room_name):
+    return render(request, 'chat/room.html', {
+        'room_name': room_name
+    })
 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -25,9 +33,7 @@ def messages(request):
 @csrf_exempt
 @api_view(['POST'])
 def user(request):
-    
-    
-        
+       
     name = request.data['username']
     try:
         user = User.objects.create_user(username=name)
@@ -42,21 +48,22 @@ def user(request):
 
 
 # @authentication_classes([TokenAuthentication])
-# @permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 @csrf_exempt
 # @api_view(['POST'])
 def loginuser(request):
-    
-    user = User.objects.get(username = request.POST['username'])
-    if user is not None:
-        token = Token.objects.get(user = user)
-        return JsonResponse({'message':'Successfully logged in', 'token':token.key}, safe=False, status = 200)
-    else:
-        return JsonResponse({'message':'Invalid username'}, safe=False, status = 403)
-
+    try :
+        user = User.objects.get(username = request.POST['username'])
+        if user is not None:
+            token = Token.objects.get(user = user)
+            return JsonResponse({'message':'Successfully logged in', 'token':token.key}, safe=False, status = 200)
+        else:
+            return JsonResponse({'message':'Invalid username'}, safe=False, status = 403)
+    except :
+        return JsonResponse({'message' : 'Something went wrong'}, safe = False, status = 403)
 
 @authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+
 @csrf_exempt
 @api_view(['POST'])
 def sendmessage(request):
